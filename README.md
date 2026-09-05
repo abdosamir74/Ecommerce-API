@@ -902,7 +902,7 @@ The goal is not only to make the API work, but to understand **why each technolo
 
 **.NET Backend Developer**
 
-* 💼 LinkedIn: [Abdelrhman Samir](https://www.linkedin.com/in/abdo-samir-a95884200/)
+* 💼 LinkedIn: [Abdelrhman Samir](https://www.linkedin.com/in/abdelrhman-samir-a95884200/)
 * 📧 Email: `abbddoosaammiirr@gmail.com`
 * 📱 WhatsApp: `+20 106 494 9734`
 
