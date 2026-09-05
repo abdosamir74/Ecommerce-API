@@ -2,6 +2,7 @@
 using Application.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Ecommerce.Controllers
 {
@@ -16,9 +17,9 @@ namespace Ecommerce.Controllers
             _couponService = couponService;
         }
 
-        //  إنشاء كوبون جديد (خاص بالأدمن)
+        // إنشاء كوبون جديد (خاص بالأدمن عبر الـ Permission Policy)
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "Permissions.Coupons.Create")]
         public async Task<ActionResult<CouponDto>> CreateCoupon([FromBody] CreateCouponDto createCouponDto)
         {
             try
@@ -32,13 +33,18 @@ namespace Ecommerce.Controllers
             }
         }
 
-        [HttpPost("apply/{basketId}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> ApplyCoupon(string basketId, [FromBody] string couponCode)
+        // تطبيق الكوبون (متاح لكل العُملاء المسجلين، مع استخراج السلة من الـ Token حمايةً من الـ IDOR)
+        [HttpPost("apply")]
+        [Authorize]
+        public async Task<ActionResult> ApplyCoupon([FromBody] ApplyCouponDto dto)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized(new { message = "غير مصرح، يرجى تسجيل الدخول أولاً." });
+
             try
             {
-                var basket = await _couponService.ApplyCouponToBasketAsync(basketId, couponCode);
+                var basket = await _couponService.ApplyCouponToBasketAsync(userId, dto.CouponCode);
                 return Ok(basket);
             }
             catch (KeyNotFoundException ex)
@@ -51,18 +57,18 @@ namespace Ecommerce.Controllers
             }
         }
 
-        //  عرض جميع الكوبونات (لإدارة الأدمن)
+        // عرض جميع الكوبونات (لإدارة الأدمن)
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "Permissions.Coupons.Read")]
         public async Task<ActionResult<IReadOnlyList<CouponDto>>> GetCoupons()
         {
             var coupons = await _couponService.GetAllCouponsAsync();
             return Ok(coupons);
         }
 
-        //  حذف كوبون
+        // حذف كوبون
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "Permissions.Coupons.Delete")]
         public async Task<ActionResult> DeleteCoupon(int id)
         {
             var result = await _couponService.DeleteCouponAsync(id);
