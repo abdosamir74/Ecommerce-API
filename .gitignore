@@ -1,0 +1,28 @@
+# Build results
+bin/
+obj/
+out/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Rider / VS Code
+.idea/
+.vscode/
+
+# User-specific
+appsettings.Development.json
+
+# Logs
+*.log
+Logs/
+
+# NuGet
+*.nupkg
+packages/
+
+# Sensitive Files & Environment Variables
+.env
+*.env.local
