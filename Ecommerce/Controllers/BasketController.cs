@@ -35,15 +35,21 @@ public class BasketController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<CustomerBasket>> UpdateBasket(CustomerBasketDto basketDto)
+    public async Task<ActionResult<CustomerBasket>> UpdateBasket([FromBody] CustomerBasketDto basketDto)
     {
         var userId = CurrentUserId();
         if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
 
-        var customerBasket = _mapper.Map<CustomerBasketDto, CustomerBasket>(basketDto);
-        customerBasket.Id = userId;
+        // الحصول على السلة الحالية أو إنشاء سلة جديدة مرتبطة بالـ userId الخاص بالتوكن
+        var existingBasket = await _basketRepository.GetBasketAsync(userId) ?? new CustomerBasket(userId);
 
-        var updatedBasket = await _basketRepository.UpdateBasketAsync(customerBasket);
+        // تحويل الـ DTO المضمون وتنفيذ منطق إضافة/تحديث العناصر عبر الـ Domain Model
+        var mappedItems = _mapper.Map<List<BasketItem>>(basketDto.Items);
+
+        // إعادة ضبط عناصر السلة باستخدام منطق الـ Domain
+        existingBasket.Items = mappedItems;
+
+        var updatedBasket = await _basketRepository.UpdateBasketAsync(existingBasket);
         return Ok(updatedBasket);
     }
 
