@@ -28,6 +28,10 @@ namespace Domain.Entities
         public int UsageLimit { get; set; }
         public int TimesUsed { get; set; }
 
+
+        // RowVersion لمنع الـ Race Condition والـ Concurrent Writes
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
         public bool IsValid()
         {
             return IsActive

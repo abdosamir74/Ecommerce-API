@@ -24,6 +24,10 @@ namespace Infrastructure.Persistence.Configurations
 
             builder.Property(c => c.DiscountAmount)
                 .HasColumnType("decimal(18,2)");
+
+            // ضبط الـ RowVersion كـ Concurrency Token لمجابهة الـ Race Conditions
+            builder.Property(c => c.RowVersion)
+                .IsRowVersion();
         }
     }
 }
